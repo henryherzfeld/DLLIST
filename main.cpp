@@ -1,7 +1,6 @@
 /* Henry Herzfeld COP 3530
  * 12/3/17 11:59pm
  */
-
 #include <iostream>
 using namespace std;
 
@@ -31,7 +30,7 @@ public:
 };
 
 
-class minHeap // binary heap
+class minHeap //binary heap
 {
     int size;
     TNode *top;
@@ -44,9 +43,11 @@ public:
     void setSize(int n);
 	bool isLeaf(const TNode* t);
 	bool isTop(const TNode* t);
+	TNode* makeNode(int val);
     TNode* copyHelper(TNode *h);      //does all copy logic, copy constructor calls this if h != NULL
     void bubbleUp(TNode* t);
     void bubbleDown(TNode* t);
+	
 
     //=== HEAP FUNCTIONS ===//
     void in(const TNode &t);// you should new a new node and then add into the heap
@@ -66,7 +67,7 @@ public:
 
     minHeap(const minHeap &h) //copy constructor
     {
-        if(h.size == 0)//case for empty heap
+        if(h.size == 0) //case for empty heap
         {
             size = 0;
             top = NULL;
@@ -108,7 +109,7 @@ void minHeap::setSize(int n)
     size = n;
 }
 
-bool ::minHeap::isLeaf(const TNode* t)
+bool minHeap::isLeaf(const TNode* t)
 {
 	if(!(t->left || t->right)) //if both children are null
 	{
@@ -120,7 +121,7 @@ bool ::minHeap::isLeaf(const TNode* t)
 	}
 }
 
-bool ::minHeap::isTop(const TNode* t)
+bool minHeap::isTop(const TNode* t)
 {
 	if(!t->parent)
 	{
@@ -132,35 +133,51 @@ bool ::minHeap::isTop(const TNode* t)
 	}
 }
 
+TNode* minHeap::makeNode(int val)
+{
+	TNode *ret = new TNode;
+	ret->val = val;
+	size++;
+	return ret;
+}
+
 TNode* minHeap::copyHelper(TNode *h)   //does all copy logic, copy constructor calls this if h != NULL
 {
-    TNode *ret = new TNode;
-    ret->val = h->val;              //assigning val and
-    ret->parent = h->parent;        //parent to each input TNode
-	
-	if(isLeaf(h))
+	if(isTop(h))                        //if input node is the top, custom configuration of new node and return it
 	{
-	
+		TNode* ret = makeNode(h->val);
+		ret->parent = NULL;
+		return ret;
 	}
-	
-	if(h->left != NULL) {                   //if left child isn't null
-		ret->left = copyHelper(h->left);
-	}
-	else
+	else                                //if not, recurse down and assign respectively
 	{
-		ret->left = NULL;
+		TNode* ret = makeNode(h->val);  //create node with input node value and assign to ret node
+		
+		if(isLeaf(h))                   //base case for input node being bottom item
+		{
+			return ret;
+		}
+		
+		if(h->left != NULL) //if left child isn't null
+		{
+			ret->left = copyHelper(h->left);
+		}
+		else
+		{
+			ret->left = NULL;
+		}
+		
+		if(h->right != NULL) {
+			ret->right = copyHelper(h->right);
+		}
+		else
+		{
+			ret->right = NULL;
+		}
+	return ret;
 	}
-	
-	if(h->right != NULL)
-	{
-		ret->right = copyHelper(h->right);
-	}
-	else
-	{
-		ret->right = NULL;
-	}
-    return ret;
 }
+
 
 void minHeap::bubbleUp(TNode* t) //takes in TNode and bubbles up until either top or smaller node and returns it
 {
