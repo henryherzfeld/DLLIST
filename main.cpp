@@ -54,8 +54,7 @@ public:
     TNode* getmin();
     void Heapify(const int n, const int *p);// p is an array of size n, representing a (full) binary tree of size n-1. (The tree starts at location 1). You should not modify the array p.
 
-
-
+	
     //===========================================//
     //=============== CONSTRUCTORS ==============//
     //===========================================//
