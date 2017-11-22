@@ -1,281 +1,427 @@
-/* Henry Herzfeld COP 3530
- * 12/3/17 11:59pm
- */
 #include <iostream>
 using namespace std;
 
-
-class TNode
+class Item
 {
 public:
     int val;
-    TNode* left;
-    TNode* right;
-    TNode* parent;
-
-    TNode() //default constructor
+    Item *next, *prev;
+    Item()        //default constructor
     {
         val = 0;
-        left = NULL;
-        right = NULL;
-        parent = NULL;
+        next = NULL;
+        prev = NULL;
     }
-    explicit TNode(int v) //int parameter constructor
+    Item(int val)   //copy constructor
     {
-        val = v;
-        left = NULL;
-        right = NULL;
-        parent = NULL;
+        this->val = val;
+        next = NULL;
+        prev = NULL;
     }
+
 };
 
-
-class minHeap //binary heap
+class DLinkedList
 {
     int size;
-    TNode *top;
+    Item *front;
+    Item *back;
 
 public:
-    //== HELPER FUNCTIONS ==//
-    TNode* getTop();
-    void setTop(TNode* t);
-    int getSize();
-    void setSize(int n);
-	bool isLeaf(const TNode* t);
-	bool isTop(const TNode* t);
-	TNode* makeNode(int val);
-    TNode* copyHelper(TNode *h);      //does all copy logic, copy constructor calls this if h != NULL
-    void bubbleUp(TNode* t);
-    void bubbleDown(TNode* t);
-	
-
-    //=== HEAP FUNCTIONS ===//
-    void in(const TNode &t);// you should new a new node and then add into the heap
-    void removemin();
-    TNode* getmin();
-    void Heapify(const int n, const int *p);// p is an array of size n, representing a (full) binary tree of size n-1. (The tree starts at location 1). You should not modify the array p.
-
-	
-    //===========================================//
-    //=============== CONSTRUCTORS ==============//
-    //===========================================//
-    minHeap() //default constructor
+    DLinkedList() //default constructor
     {
-        size = 0;
-        top = NULL;
+      size = 0;
+      front = NULL;
+      back = NULL;
     }
 
-    minHeap(const minHeap &h) //copy constructor
+    DLinkedList(const DLinkedList &list) //copy constructor
     {
-        if(h.size == 0) //case for empty heap
+      if (list.front == NULL) //conditional for an empty list
+      {
+          this->front = NULL;
+          this->back = NULL;
+      }
+
+      else
+      {
+          //defining items for loop
+          Item* current = new Item;
+          Item* objFront = new Item;
+          Item* currentObj = new Item;
+
+          current = this->front; //current points to current object's front, and is used to move through current obj
+          objFront = list.front; //objFront points to list's front (other obj)
+          currentObj = objFront; //currentObj points to list's front and is used to move through list obj
+    
+          while (currentObj->next != NULL) //moving through list obj
+          {
+              current->next->val = currentObj->next->val; //assigning value of list obj to current obj
+              currentObj = currentObj->next; //moving through list obj
+              current->next->prev = current; //making sure current obj's prev item points to next item
+              current = current->next;       //moving through current obj
+          }
+
+          this->back = current; //reassigning back of current obj to current (which points to last item post-loop)
+      }
+    }
+
+    Item* getFront()
+    {
+      return front;
+    }
+
+    Item* getBack()
+    {
+      return back;
+    }
+
+    int getSize()
+    {
+      return size;
+    }
+
+    void push_back(Item *a)
+    {
+        if (this->size == 0)
         {
-            size = 0;
-            top = NULL;
+          this->front = a;
+          this->back = a;
         }
         else
         {
-            top = copyHelper(h.top);
+          this->back->next = a;
+          a->prev = this->back;
+          this->back = a;
         }
+      this->size += 1;
+    }
+
+    void push_front(Item *a)
+    {
+      if (this->size == 0)
+      {
+        this->front = a;
+        this->back = a;
+      }
+      else
+      {
+        a->next = this->front;
+        this->front->prev = a;
+        this->front = a;
+      }
+      this->size += 1;
+    }
+
+    Item* pop_front()
+    {
+      Item* temp = new Item;
+      temp = this->front;
+      if(this->size == 0)
+      {
+        cout << "The list is empty." << endl;
+      }
+      else if(this->size == 1)
+      {
+        this->front = NULL;
+        this->back = NULL;
+      }
+      else
+      {
+        this->front = this->front->next;
+        this->front->prev = NULL;
+      }
+      this->size -= 1;
+    }
+
+    Item* pop_back()
+    {
+      if(this->size == 0)
+      {
+        cout << "The list is empty." << endl;
+      }
+      else if(this->size == 1)
+      {
+        this->front = NULL;
+        this->back = NULL;
+      }
+      else
+      {
+        this->back = this->back->prev;
+        this->back->next = NULL;
+      }
+      this->size -= 1;
+    }
+
+    void insert(Item *a, int t)
+    {
+      if(t == 0)
+      {
+        push_front(a);
+      }
+      else if(t < 0)
+      {
+        cout << "Invalid input." << endl;
+      }
+      else if(t == size)
+      {
+        push_back(a);
+      }
+      else
+      {
+        Item * temp = new Item;
+        temp = this->front;
+        while(temp->next != NULL && t > 0)
+        {
+          temp = temp->next;
+          t--;
+        }
+        a->next = temp;
+        a->prev = temp->prev;
+        temp->prev->next = a;
+        temp->prev = a;
+
+
+
+        this->size + 1;
+      }
+    }
+
+    void insertlist(DLinkedList &list, int t)
+    {
+      if(list.front = NULL)
+      {
+        cout << "Whoops! The list you're trying to append is empty..." << endl;
+      }
+      else
+      {
+        if(t == 0)
+        {
+          list.back->next = this->front;
+          this->front->prev = list.back;
+          this->front = list.front;
+        }
+        else if(t < 0)
+        {
+          cout << "Invalid input." << endl;
+        }
+        else if(t == this->size)
+        {
+          this->back->next = list.front;
+          list.front->prev = this->back;
+          this->back = list.back;
+        }
+        else
+        {
+          Item* temp = new Item;
+          temp = this->front;
+          while(temp->next != NULL && t > 0)
+          {
+            temp = temp->next;
+            t --;
+          }
+          list.back->next = temp;
+          list.front->prev = temp->prev;
+          temp->prev = list.back;
+          temp->prev->next = list.front;
+
+          list.back->next->prev = list.back;
+        }
+      }
+      this->size = this->size + list.size;
+    }
+
+    void display(ostream &out)
+    {
+      if(this->front == NULL)
+      {
+        out << "Empty List." << endl;
+      }
+      else
+      {
+        Item *temp;
+        temp = this->front;
+        while(temp != NULL)
+        {
+          out << temp->val << "::";
+          temp = temp->next;
+        }
+        cout << endl;
+      }
+    }
+
+    void swap(Item *p, Item *q)
+    {
+      int temp;
+      temp = p->val;
+      p->val = q->val;
+      q->val = temp;
+    }
+
+    Item* extractmin(Item *a)
+    {
+      if(a->next == NULL)
+      {
+        return a;
+      }
+      else
+      {
+        Item * min = new Item;
+        min = a;
+        while(a != NULL)
+        {
+          a = a->next;
+          if(a->val < min->val)
+          {
+            min = a;
+          }
+        }
+        return min;
+      }
+    }
+
+    Item* extractmax(Item *a)
+    {
+      if(a->next == NULL)
+      {
+        return a;
+      }
+      else
+      {
+        Item * max = new Item;
+        max = a;
+        while(a != NULL)
+        {
+          a = a->next;
+          if(a->val > max->val)
+          {
+            max = a;
+          }
+        }
+        return max;
+      }
+    }
+
+};
+
+class myStack
+{
+    DLinkedList list;
+public:
+    myStack();
+    int getSize()
+    {
+      return list.getSize();
+    }
+    void in(Item *a)
+    {
+      list.push_back(a);
+    }
+    Item *top()
+    {
+      return list.getBack();
+    }
+    void out()
+    {
+      Item * poppedEl = new Item;
+      poppedEl = list.pop_back();
+      cout << "Popped element is: " << poppedEl->val;
+    }
+
+};
+
+class myQueue
+{
+    DLinkedList list;
+public:
+    myQueue();
+    int getSize()
+    {
+      return list.getSize();
+    }
+    void in(Item *a)
+    {
+      list.push_front(a);
+    }
+    Item *front()
+    {
+      return list.getFront();
+    }
+    void out()
+    {
+      Item * poppedEl = new Item;
+      poppedEl = list.pop_back();
+      cout << "Popped element is: " << poppedEl->val;
     }
 };
 
 
-//===========================================//
-//================ DEFINITIONS ==============//
-//===========================================//
-
-//============ HELPER FUNCTIONS =============//
-TNode* minHeap::getTop()
-{
-    return top;
-}
-
-void minHeap::setTop(TNode* t)
-{
-    if(size == 0)
-    {
-        size++;
-    }
-    top = t;
-}
-
-int minHeap::getSize()
-{
-    return size;
-}
-
-void minHeap::setSize(int n)
-{
-    size = n;
-}
-
-bool minHeap::isLeaf(const TNode* t)
-{
-	if(!(t->left || t->right)) //if both children are null
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
-bool minHeap::isTop(const TNode* t)
-{
-	if(!t->parent)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
-TNode* minHeap::makeNode(int val)
-{
-	TNode *ret = new TNode;
-	ret->val = val;
-	size++;
-	return ret;
-}
-
-TNode* minHeap::copyHelper(TNode *h)   //does all copy logic, copy constructor calls this if h != NULL
-{
-	if(isTop(h))                        //if input node is the top, custom configuration of new node and return it
-	{
-		TNode* ret = makeNode(h->val);
-		ret->parent = NULL;
-		return ret;
-	}
-	else                                //if not, recurse down and assign respectively
-	{
-		TNode* ret = makeNode(h->val);  //create node with input node value and assign to ret node
-		
-		if(isLeaf(h))                   //base case for input node being bottom item
-		{
-			return ret;
-		}
-		
-		if(h->left != NULL) //if left child isn't null
-		{
-			ret->left = copyHelper(h->left);
-		}
-		else
-		{
-			ret->left = NULL;
-		}
-		
-		if(h->right != NULL) {
-			ret->right = copyHelper(h->right);
-		}
-		else
-		{
-			ret->right = NULL;
-		}
-	return ret;
-	}
-}
 
 
-void minHeap::bubbleUp(TNode* t) //takes in TNode and bubbles up until either top or smaller node and returns it
-{
-    if(!isTop(t)) //avoiding referencing null parent pointer
-    {
-	    if(t->val < t->parent->val) //testing input node val against parent val
-	    {
-		    int temp = t->parent->val;     //swapping node values using temp int
-		    t->parent->val = t->val;
-		    t->val = temp;
-		
-		    bubbleUp(t->parent);            //recursive call to move up
-	    }
-    }
-}
 
-void minHeap::bubbleDown(TNode* t)
-{
-    if(t->left != NULL || t->right != NULL && t->val < t->parent->val) //checking to
-    {
-        bubbleUp(t->parent);
-    }
-}
 
-//============== HEAP FUNCTIONS ==============//
-void minHeap::in(const TNode &t)
-{
-    TNode* in = new TNode;
-    in->val = t.val;
-    
-    
-}
-    
-void minHeap::removemin()
-{
+  int main() {
 
-}
+    DLinkedList list;
 
-TNode* minHeap::getmin()
-{
+    DLinkedList list2;
 
-}
-    
-    void Heapify(const int n, const int *p) // p is an array of size n, representing a (full) binary tree of size n-1. (The tree starts at location 1). You should not modify the array p.
-    {
-    
-    }
-    
-//============ EXTERNAL FUNCTIONS ============//
-int * HeapSort(const int n, const int *arr)// arr is an integer array of numbers. You should output a pointer to a new array which is a sorted version of arr
-{
+    Item *D = new Item;
+    D->val = 10;
 
-}
+    Item *P = new Item;
+    P->val = 9;
 
-void Test()
-{
+    Item *Q = new Item;
+    Q->val = 8;
 
-}
+    Item *G = new Item;
+    G->val = 7;
 
-int main(int argc, const char * argv[])
-{
-    //CONSTRUCTORS
-    cout << "//====== CONSTRUCTORS: ======//" << endl;
-    minHeap ConHeap1;
-	TNode* ConNode1 = new TNode;
-    
-    ConNode1->val = 10;
-	
-    ConHeap1.setTop(ConNode1); //default
-    cout << "1: " << ConHeap1.getTop()->val << endl; //copy
-    minHeap ConHeap2(ConHeap1); //copy
-    cout << "2: " << ConHeap2.getTop()->val << endl; //copy
+    Item *F = new Item;
+    F->val = 6;
 
-    //BUBBLE UP/DOWN
-    cout << endl << "//====== BUBBLE UP/DOWN: ======//" << endl;
-	TNode* BubNode1 = new TNode;
-    TNode* BubNode2 = new TNode;
-    TNode* BubNode3 = new TNode;
-    TNode* BubNode4 = new TNode;
-    minHeap BubHeap1;
-    
-    BubNode1->val = 5;
-    BubNode2->val = 12;
-    BubNode3->val = 20;
-    BubNode4->val = 25;
-    
-    BubHeap1.setTop(BubNode3);  //setting up test heap
-    BubHeap1.getTop()->left = BubNode1;
-    BubNode1->parent = BubNode2;
-    BubNode2->parent = BubNode3;
-    BubHeap1.setSize(BubHeap1.getSize()+2);
-    
-    cout << BubHeap1.getTop()->val << endl;
-    BubHeap1.bubbleUp(BubNode1);
-    cout << BubHeap1.getTop()->val << endl;
-    
-    
-    
-    
-    return 0;
-}
+    Item *S = new Item;
+    S->val = 55;
+
+
+  list.push_front(D);
+  list.push_front(P);
+  list.push_back(Q);
+
+  list.display(cout); //pdq
+
+  list.pop_back();
+  list.display(cout);
+  list.swap(P, D);
+  list.display(cout);
+  list.pop_front();
+  list.display(cout);
+
+  list2.push_front(G);
+  list2.push_front(F);
+
+  int q = list.getSize();
+  cout << "list1 size: " << q << endl;
+
+  int t = list2.getSize();
+  cout << "list2 size: " << t << endl;
+  list2.insert(S, 1);
+
+  list.display(cout);
+  list2.display(cout);
+
+  Item *max = new Item;
+  max = list.extractmax(D);
+
+  cout << max->val << endl;
+
+  Item *min = new Item;
+  min = list2.extractmin(G);
+
+  cout << min->val << endl;
+
+  list2.display(cout);
+
+  return 0;
+ }
